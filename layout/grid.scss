@@ -1,0 +1,93 @@
+//----------------------------------\\
+// CSS GRID HELPERS
+//----------------------------------\\
+// https://codepen.io/jakob-e/pen/RZpdaE?editors=0100
+
+//  REPEAT HELPER
+//----------------------------------\\
+@function repeat($repeat, $stuff: 1fr) {
+    $list: ();
+
+    @for $i from 1 through $repeat {
+        $list: append($list, $stuff, space);
+    }
+
+    @return $list;
+}
+
+// GRID COLUMN MIXIN
+//----------------------------------\\
+@mixin grid-column($start: auto, $span: 1) {
+    grid-column: #{$start}/#{$start + $span};
+}
+
+// GRID ROW MIXIN
+//----------------------------------\\
+@mixin grid-row($start: auto, $span: 1) {
+    grid-row: #{$start}/#{$start + $span};
+}
+
+// GRID CELL MIXIN
+//----------------------------------\\
+@mixin grid-cell($col-start: auto, $col-span: 1, $row-start: auto, $row-span: 1) {
+    @include grid-column($col-start, $col-span);
+
+    @include grid-row($row-start, $row-span);
+}
+
+// GRID AREA MIXIN
+//----------------------------------\\
+//
+// grid area map (col, col-span, row, row-span)
+//
+// $grid-areas:(
+//     area-1: (4, 6, 2, 4),
+//     area-2: (1, 2, 1, 2)
+// );
+//
+// @include grid-area(area-1);
+//
+@mixin grid-area($area) {
+    $area: map-get($grid-areas, $area);
+
+    @include grid-column(nth($area, 1), nth($area, 2));
+
+    @include grid-row(nth($area, 3), nth($area, 4));
+}
+
+//  GRID MIXIN
+//----------------------------------\\
+//
+//  grid map (cols, rows, gap, col-gap, row-gap)
+//
+//  $grid: (
+//     cols: repeat(5, 1fr) 2fr,
+//     row-gap: 20px,
+//     col-gap: 10px
+//  );
+//  @include grid((cols: repeat(4), col-gap: 16px, row-gap: 8px));
+//
+@mixin grid($grid-map) {
+    $cols: map-get($grid-map, cols);
+    $rows: map-get($grid-map, rows);
+    $gap: map-get($grid-map, gap);
+    $col-gap: map-get($grid-map, col-gap);
+    $col-gap: if($col-gap, $col-gap, $gap);
+    $row-gap: map-get($grid-map, row-gap);
+    $row-gap: if($row-gap, $row-gap, $gap);
+
+    //  if cols or rows are numbers convert to fraction lists
+    @if $cols and length($cols) == 1 and unitless($cols) {
+        $cols: repeat($cols);
+    }
+
+    @if $rows and length($rows) == 1 and unitless($rows) {
+        $rows: repeat($cols);
+    }
+
+    display: grid;
+    grid-template-columns: $cols;
+    grid-template-rows: $rows;
+    grid-column-gap: $col-gap;
+    grid-row-gap: $row-gap;
+}
